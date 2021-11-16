@@ -18,6 +18,7 @@ class CreateMseIpListsTable extends Migration
             $table->string('name');
             $table->string('ipv4')->unique();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
