@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class MseIpList extends Migration
+class CreateMseIpListsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class MseIpList extends Migration
      */
     public function up()
     {
-        Schema::create('mse_ip_list', function (Blueprint $table) {
+        Schema::create('mse_ip_lists', function (Blueprint $table) {
             $table->id();
-            $table->string('mse_name', 30); //VARCHAR 30
+            $table->string('name');
             $table->string('ipv4')->unique();
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ class MseIpList extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mse_ip_list');
+        Schema::dropIfExists('mse_ip_lists');
     }
 }
