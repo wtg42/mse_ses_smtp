@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MseIpList;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\MseIpListResource;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,12 +32,15 @@ class MseIpListController extends Controller
      */
     public function index()
     {
-        $mseIpList = MseIpList::get();
+        $mseIpList = Cache::remember('mse_ip_list', 60, function () {
+            return MseIpList::get();
+        });
         if ($mseIpList->isEmpty()) {
-            return response()->json(['Opps! data is empty.'], 404);
+            return response()->json(['err_msg' => 'Opps! data is empty.'], 404);
         }
-        // return response($mseIpList, Response::HTTP_OK);
-        return MseIpListResource::collection($mseIpList)->response()->setStatusCode(Response::HTTP_OK);
+        return MseIpListResource::collection($mseIpList)
+        ->response()
+        ->setStatusCode(Response::HTTP_OK);
     }
 
     /**
