@@ -54,11 +54,10 @@ class MseIpListController extends Controller
 
         try {
             $validatedData = $this->validate($request, $this->rules, $this->messages);
-            $ip = MseIpList::create([
+            MseIpList::create([
                 'ipv4' => $validatedData['ipv4'],
                 'name' => $validatedData['name'],
-            ]);
-            $ip->save();
+            ])->save();
             return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json([$th->getMessage()])->setStatusCode(Response::HTTP_CONFLICT);
