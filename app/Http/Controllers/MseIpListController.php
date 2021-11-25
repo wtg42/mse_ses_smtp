@@ -4,8 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\MseIpList;
 use Illuminate\Http\Request;
+use App\Mail\BasicTextSampleMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\MseIpListResource;
+use App\Jobs\MseSendMailJob;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
 
 class MseIpListController extends Controller
@@ -96,5 +102,27 @@ class MseIpListController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws BindingResolutionException
+     * @throws InvalidArgumentException
+     */
+    public function sendMail()
+    {
+        Mail::queue(new BasicTextSampleMail());
+        return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws BindingResolutionException
+     * @throws InvalidArgumentException
+     */
+    public function jobQueue()
+    {
+        MseSendMailJob::dispatch();
+        return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
     }
 }
