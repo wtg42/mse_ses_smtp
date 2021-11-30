@@ -22,5 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Mse Ip List
 Route::apiResource('/IPList', MseIpListController::class);
 
-Route::get('/sendmail', [MseIpListController::class, 'sendMail']);
-Route::get('/jobQueue', [MseIpListController::class, 'jobQueue']);
+Route::any('/sendMail', [MseIpListController::class, 'sendMail']);
+Route::post('/jobQueue', [MseIpListController::class, 'jobQueue']);

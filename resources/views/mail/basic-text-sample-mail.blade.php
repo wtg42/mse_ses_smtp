@@ -23,7 +23,7 @@ Thanks,<br>
 
 <body>
     <h1>
-        <p>Hello World!</p>
+        <p>{{ $contents }}</p>
     </h1>
 </body>
 

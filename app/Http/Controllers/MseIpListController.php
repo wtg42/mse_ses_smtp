@@ -22,12 +22,12 @@ class MseIpListController extends Controller
 
     // form reuls 搭配 messages
     protected $rules = [
-        'ipv4' => 'required|string|unique:mse_ip_lists',
+        'ipv4' => 'required|ipv4|unique:mse_ip_lists',
         'name' => 'required|string|min:2',
     ];
 
     protected $messages = [
-        'ipv4.unique' => 'IP 已被存在',
+        'ipv4.unique' => 'IP 已存在',
         'ipv4.required' => '請填入 IP',
     ];
 
@@ -105,13 +105,30 @@ class MseIpListController extends Controller
     }
 
     /**
+     * 打信到 BasicTextSampleMail
      * @return JsonResponse
      * @throws BindingResolutionException
      * @throws InvalidArgumentException
      */
-    public function sendMail()
+    public function sendMail(Request $request)
     {
-        Mail::queue(new BasicTextSampleMail());
+        $rules = [
+            'ip' => 'required|ipv4',
+            'from' => 'required|email',
+            'to' => 'required|email',
+            'subject' => 'required|string',
+            'contents' => 'required|string',
+        ];
+        $messages = [
+            'ip.required' => '請選擇打信 IP',
+            'from.required' => '請填入 Email',
+            'to.required' => '請填入 Email',
+            'subject.required' => '請填入主旨',
+            'contents.required' => '請填入信件內容',
+        ];
+        $validatedData = $this->validate($request, $rules, $messages);
+
+        Mail::queue(new BasicTextSampleMail($validatedData));
         return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
     }
 
@@ -120,7 +137,7 @@ class MseIpListController extends Controller
      * @throws BindingResolutionException
      * @throws InvalidArgumentException
      */
-    public function jobQueue()
+    public function jobQueue(Request $request)
     {
         MseSendMailJob::dispatch();
         return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
