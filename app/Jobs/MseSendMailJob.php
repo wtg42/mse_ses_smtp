@@ -27,11 +27,11 @@ class MseSendMailJob implements ShouldQueue
 
     /**
      * Execute the job.
-     *
+     * @todo 實作 php artisan command 送信到特定 host ip
      * @return void
      */
     public function handle()
     {
-        Mail::send(new BasicTextSampleMail());
+        // Mail::send(new BasicTextSampleMail());
     }
 }

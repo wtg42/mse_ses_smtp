@@ -3,34 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\MseIpList;
+use App\Jobs\MseSendMailJob;
 use Illuminate\Http\Request;
-use App\Mail\BasicTextSampleMail;
-use Illuminate\Support\Facades\Mail;
+use InvalidArgumentException;
+use App\Services\MseSmtpService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\MseIpListResource;
-use App\Jobs\MseSendMailJob;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class MseIpListController extends Controller
 {
-    // 表單欄位
-    // public $ipv4;
-    // public $name;
-
-    // form reuls 搭配 messages
-    protected $rules = [
-        'ipv4' => 'required|ipv4|unique:mse_ip_lists',
-        'name' => 'required|string|min:2',
-    ];
-
-    protected $messages = [
-        'ipv4.unique' => 'IP 已存在',
-        'ipv4.required' => '請填入 IP',
-    ];
-
     /**
      * Display a listing of the resource.
      *
@@ -51,15 +35,26 @@ class MseIpListController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
+     * 存入新的要打信的 host ip
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
+        // form reuls 搭配 messages
+        $rules = [
+            'ipv4' => 'required|ipv4|unique:mse_ip_lists',
+            'name' => 'required|string|min:2',
+        ];
 
+        $messages = [
+            'ipv4.unique' => 'IP 已存在',
+            'ipv4.required' => '請填入 IP',
+            'name.required' => '請填入名稱',
+            'name.min' => '最少需要 2 個字元',
+        ];
         try {
-            $validatedData = $this->validate($request, $this->rules, $this->messages);
+            $validatedData = $this->validate($request, $rules, $messages);
             MseIpList::create([
                 'ipv4' => $validatedData['ipv4'],
                 'name' => $validatedData['name'],
@@ -127,8 +122,7 @@ class MseIpListController extends Controller
             'contents.required' => '請填入信件內容',
         ];
         $validatedData = $this->validate($request, $rules, $messages);
-
-        Mail::queue(new BasicTextSampleMail($validatedData));
+        MseSmtpService::sendMail($validatedData);
         return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
     }
 
