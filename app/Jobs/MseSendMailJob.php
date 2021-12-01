@@ -15,14 +15,15 @@ class MseSendMailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $data;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($data)
     {
-        //
+        $this->data = $data;
     }
 
     /**
@@ -32,6 +33,19 @@ class MseSendMailJob implements ShouldQueue
      */
     public function handle()
     {
-        // Mail::send(new BasicTextSampleMail());
+        // Backup your default mailer
+        // $backup = Mail::getSwiftMailer();
+
+        // Setup your gmail mailer
+        $gmail = new \Swift_SmtpTransport($this->data['ip'], 25, null);
+
+        // Set the mailer as gmail
+        Mail::setSwiftMailer(new \Swift_Mailer($gmail));
+
+        // Send your message
+        Mail::send(new BasicTextSampleMail($this->data));
+
+        // Restore your original mailer
+        // Mail::setSwiftMailer($backup);
     }
 }

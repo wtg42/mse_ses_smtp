@@ -7,7 +7,10 @@ use App\Jobs\MseSendMailJob;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use App\Services\MseSmtpService;
+use App\Mail\BasicTextSampleMail;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\MseIpListResource;
 use Symfony\Component\HttpFoundation\Response;
@@ -122,7 +125,9 @@ class MseIpListController extends Controller
             'contents.required' => '請填入信件內容',
         ];
         $validatedData = $this->validate($request, $rules, $messages);
-        MseSmtpService::sendMail($validatedData);
+        // config(['mail.mailers.smtp.host' => $validatedData['ip']]);
+
+        $this->jobQueue($validatedData);
         return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
     }
 
@@ -131,9 +136,11 @@ class MseIpListController extends Controller
      * @throws BindingResolutionException
      * @throws InvalidArgumentException
      */
-    public function jobQueue(Request $request)
+    public function jobQueue($data)
     {
-        MseSendMailJob::dispatch();
+        $mseJob = new MseSendMailJob($data);
+        dispatch($mseJob);
+        // MseSendMailJob::dispatch();
         return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
     }
 }
