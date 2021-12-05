@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
+use App\Services\MseSmtpService;
 use App\Mail\BasicTextSampleMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\SerializesModels;
@@ -15,15 +16,24 @@ class MseSendMailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $data;
+    public array $mailerInfo = [
+        'ip' => '',
+        'from' => '',
+        'to' => '',
+    ];
     /**
      * Create a new job instance.
-     *
+     * @param array $mailRequest
      * @return void
      */
-    public function __construct($data)
+    public function __construct(array $mailRequest)
     {
-        $this->data = $data;
+        // $mailRequest 送來的 mailer 資訊填入對應 $this->mailerInfo 資訊
+        tap(array_filter($mailRequest, function ($key) {
+            return array_key_exists($key, $this->mailerInfo);
+        }, ARRAY_FILTER_USE_KEY), function ($filter_arr) {
+            return $this->mailerInfo = $filter_arr;
+        });
     }
 
     /**
@@ -33,17 +43,23 @@ class MseSendMailJob implements ShouldQueue
      */
     public function handle()
     {
+        MseSmtpService::getInstance()
+            ->setHost($this->mailerInfo['ip'])
+            ->setFrom($this->mailerInfo['from'])
+            ->setTo($this->mailerInfo['to'])
+            ->sendMail();
+
         // Backup your default mailer
         // $backup = Mail::getSwiftMailer();
 
         // Setup your gmail mailer
-        $gmail = new \Swift_SmtpTransport($this->data['ip'], 25, null);
+        $gmail = new \Swift_SmtpTransport($this->mailerInfo['ip'], 25, null);
 
         // Set the mailer as gmail
         Mail::setSwiftMailer(new \Swift_Mailer($gmail));
 
         // Send your message
-        Mail::send(new BasicTextSampleMail($this->data));
+        Mail::send(new BasicTextSampleMail($this->mailerInfo));
 
         // Restore your original mailer
         // Mail::setSwiftMailer($backup);

@@ -12,20 +12,20 @@ class BasicTextSampleMail extends Mailable
     use Queueable, SerializesModels;
 
     // 表單送過來的資料
-    protected $info = [];
+    protected $mailerInfo = [];
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Array $info)
+    public function __construct(Array $mailerInfo)
     {
-        $this->info = $info;
+        $this->mailerInfo = $mailerInfo;
         // change MSE host ip 設定檔案參考 config/mail.php
         // Config::set('mail.mailers.smtp.host', $this->info['ip']);
-        $this->from($info['from']);
-        $this->to($info['to']);
-        $this->subject($info['subject']);
+        $this->from($this->mailerInfo['from']);
+        $this->to($this->mailerInfo['to']);
+        $this->subject($this->mailerInfo['subject']);
         // ray($this->info['ip']);
         // ray(Config::get('mail'));
     }
@@ -37,6 +37,6 @@ class BasicTextSampleMail extends Mailable
      */
     public function build()
     {
-        return $this->view('mail.basic-text-sample-mail', ['contents' => $this->info['contents']]);
+        return $this->view('mail.basic-text-sample-mail', ['contents' => $this->mailerInfo['contents']]);
     }
 }

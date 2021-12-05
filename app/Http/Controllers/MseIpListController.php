@@ -124,23 +124,24 @@ class MseIpListController extends Controller
             'subject.required' => '請填入主旨',
             'contents.required' => '請填入信件內容',
         ];
-        $validatedData = $this->validate($request, $rules, $messages);
-        // config(['mail.mailers.smtp.host' => $validatedData['ip']]);
+        $validatedRequest = $this->validate($request, $rules, $messages);
+        // config(['mail.mailers.smtp.host' => $validatedRequest['ip']]);
 
-        $this->jobQueue($validatedData);
+        // 背景作業
+        $this->jobQueue($validatedRequest);
         return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
     }
 
     /**
+     * 送到背景送信
      * @return JsonResponse
      * @throws BindingResolutionException
      * @throws InvalidArgumentException
      */
-    public function jobQueue($data)
+    public function jobQueue($request)
     {
-        $mseJob = new MseSendMailJob($data);
+        $mseJob = new MseSendMailJob($request);
         dispatch($mseJob);
-        // MseSendMailJob::dispatch();
         return response()->json(['msg' => 'Done'])->setStatusCode(Response::HTTP_OK);
     }
 }
