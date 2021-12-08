@@ -20,6 +20,8 @@ class MseSendMailJob implements ShouldQueue
         'ip' => '',
         'from' => '',
         'to' => '',
+        'contents' =>'',
+        'subject' => '',
     ];
     /**
      * Create a new job instance.
@@ -47,6 +49,8 @@ class MseSendMailJob implements ShouldQueue
             ->setHost($this->mailerInfo['ip'])
             ->setFrom($this->mailerInfo['from'])
             ->setTo($this->mailerInfo['to'])
+            ->setSubject($this->mailerInfo['subject'])
+            ->setContents($this->mailerInfo['contents'])
             ->sendMail();
 
         // Backup your default mailer

@@ -12,6 +12,7 @@ class MseSmtpService
     protected $from = '';
     protected $to = '';
     protected $subject = '';
+    protected $contents = '';
     protected $port = 25;
 
     // singleton
@@ -36,6 +37,7 @@ class MseSmtpService
 
     /**
      * 設定並執行打信
+     * 此功能因應 Laravel 載入了 singleton mailer 所以需要另外創建一個實例
      * @return void
      */
     public function sendMail()
@@ -49,11 +51,12 @@ class MseSmtpService
         // Set the mailer as mseTransport
         Mail::setSwiftMailer(new \Swift_Mailer($mseTransport));
 
-        // Send your message
+        // Send your message, 目前只吃這四個欄位
         Mail::send(new BasicTextSampleMail([
             'from' => $this->from,
             'to' => $this->to,
             'subject' => $this->subject,
+            'contents' => $this->contents,
         ]));
 
         // Restore your original mailer
@@ -65,7 +68,7 @@ class MseSmtpService
      * @param string $host
      * @return $this
      */
-    public function setHost(String $host)
+    public function setHost(string $host)
     {
         $this->host = $host;
         return $this;
@@ -76,7 +79,7 @@ class MseSmtpService
      * @param string $from
      * @return $this
      */
-    public function setFrom(String $from)
+    public function setFrom(string $from)
     {
         $this->from = $from;
         return $this;
@@ -87,9 +90,26 @@ class MseSmtpService
      * @param string $to
      * @return $this
      */
-    public function setTo(String $to)
+    public function setTo(string $to)
     {
         $this->to = $to;
+        return $this;
+    }
+
+    public function setSubject(string $subject)
+    {
+        $this->subject = $subject;
+        return $this;
+    }
+
+    /**
+     * Set mail contents
+     * @param string $contents
+     * @return $this
+     */
+    public function setContents(string $contents)
+    {
+        $this->contents = $contents;
         return $this;
     }
 }
