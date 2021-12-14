@@ -52,20 +52,5 @@ class MseSendMailJob implements ShouldQueue
             ->setSubject($this->mailerInfo['subject'])
             ->setContents($this->mailerInfo['contents'])
             ->sendMail();
-
-        // Backup your default mailer
-        // $backup = Mail::getSwiftMailer();
-
-        // Setup your gmail mailer
-        $gmail = new \Swift_SmtpTransport($this->mailerInfo['ip'], 25, null);
-
-        // Set the mailer as gmail
-        Mail::setSwiftMailer(new \Swift_Mailer($gmail));
-
-        // Send your message
-        Mail::send(new BasicTextSampleMail($this->mailerInfo));
-
-        // Restore your original mailer
-        // Mail::setSwiftMailer($backup);
     }
 }
