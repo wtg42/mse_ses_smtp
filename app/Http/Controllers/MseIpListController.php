@@ -21,8 +21,8 @@ class MseIpListController extends Controller
      */
     public function index()
     {
-        $mseIpList = Cache::remember('mse_ip_list', 60, function () {
-            return MseIpList::get();
+        $mseIpList = Cache::remember('mse_ip_list', 1, function () {
+            return MseIpList::all();
         });
         if ($mseIpList->isEmpty()) {
             return response()->json(['err_msg' => 'Opps! data is empty.'], 404);
@@ -95,7 +95,22 @@ class MseIpListController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            // MseIpList::withTrashed($id)
+            //     ->where('id', $id)
+            //     ->restore();
+
+            MseIpList::find($id)->delete();
+
+            return response()->json([
+                "id" => $id,
+                "msg" => $id . " delete done",
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "msg" => $th . " done",
+            ])->setStatusCode(Response::HTTP_NOT_FOUND);
+        }
     }
 
     /**

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class MseIpList extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $table = 'mse_ip_lists';
     protected $fillable = [
